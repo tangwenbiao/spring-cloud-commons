@@ -39,19 +39,21 @@ public class EnableDiscoveryClientImportSelector
 
 	@Override
 	public String[] selectImports(AnnotationMetadata metadata) {
+		//获取spring.factories文件中对应的加载类权限定名称
 		String[] imports = super.selectImports(metadata);
-
+		//获取注解中的属性
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(
 				metadata.getAnnotationAttributes(getAnnotationClass().getName(), true));
-
+		//判断是否自动注册到中心
 		boolean autoRegister = attributes.getBoolean("autoRegister");
-
+		//如果需要自动注册到中心，就将AutoServiceRegistrationConfiguration加载进容器中
 		if (autoRegister) {
 			List<String> importsList = new ArrayList<>(Arrays.asList(imports));
 			importsList.add(
 					"org.springframework.cloud.client.serviceregistry.AutoServiceRegistrationConfiguration");
 			imports = importsList.toArray(new String[0]);
 		}
+		//如果不进行自动注册，就将属性放到环境中
 		else {
 			Environment env = getEnvironment();
 			if (ConfigurableEnvironment.class.isInstance(env)) {

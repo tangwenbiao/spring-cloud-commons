@@ -59,32 +59,33 @@ public abstract class SpringFactoryImportSelector<T>
 	}
 
 	@Override
+	//返回的限定名类将会被加载到容器中。
 	public String[] selectImports(AnnotationMetadata metadata) {
+		//是否启动
 		if (!isEnabled()) {
 			return new String[0];
 		}
+		//获取注解中的属性
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(
 				metadata.getAnnotationAttributes(this.annotationClass.getName(), true));
-
 		Assert.notNull(attributes, "No " + getSimpleName() + " attributes found. Is "
 				+ metadata.getClassName() + " annotated with @" + getSimpleName() + "?");
-
 		// Find all possible auto configuration classes, filtering duplicates
+		//从spring.factories文件中找到注解类的加载类。
 		List<String> factories = new ArrayList<>(new LinkedHashSet<>(SpringFactoriesLoader
 				.loadFactoryNames(this.annotationClass, this.beanClassLoader)));
-
+		//如果没有并且必须要，则抛出错误
 		if (factories.isEmpty() && !hasDefaultFactory()) {
 			throw new IllegalStateException("Annotation @" + getSimpleName()
 					+ " found, but there are no implementations. Did you forget to include a starter?");
 		}
-
 		if (factories.size() > 1) {
 			// there should only ever be one DiscoveryClient, but there might be more than
 			// one factory
 			this.log.warn("More than one implementation " + "of @" + getSimpleName()
 					+ " (now relying on @Conditionals to pick one): " + factories);
 		}
-
+		//返回加载类的权限定名称
 		return factories.toArray(new String[factories.size()]);
 	}
 
